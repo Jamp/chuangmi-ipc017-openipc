@@ -41,6 +41,13 @@ kern.debug kernel: chn[0]seq[601]add buffer[...]
 So it is not triggered by clients, and not by the JPEG channel alone; it looks like a
 race in how the stream loop handles a frame split across the ring wrap.
 
+Possibly related to #294 (SSC338Q), but the signature differs: here majestic sits in
+S state on a futex, not D, and the encoder itself is healthy with a full output ring.
+The MI worker threads (`vif0_P0_MAIN`, `vpe0_P0_MAIN`, `venc0_P0_MAIN`) are in D state
+with a load average around 8 on this SoC even while streaming normally (measured with
+another streamer at a steady 20 fps), so D state and high load alone are not a symptom
+here.
+
 ## Workaround
 
 `video0.bitrate 2048`, `video0.rcMode cbr`, `video0.gopSize 2`: 0 "full" events in 300 s,

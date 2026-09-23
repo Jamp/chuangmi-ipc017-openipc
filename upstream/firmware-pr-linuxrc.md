@@ -1,6 +1,6 @@
 # PR → OpenIPC/firmware: /linuxrc symlink for vendor U-Boot boards
 
-- Branch: `Jamp/firmware:rootfs-linuxrc` (commit `ee800f6`, one symlink, local — not pushed yet)
+- Branch: `Jamp/firmware:rootfs-linuxrc` (commit `ee800f6`, one symlink) — opened as OpenIPC/firmware#2474
 - Target: `OpenIPC/firmware:master`
 
 ## Title
