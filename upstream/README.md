@@ -13,13 +13,14 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 | 6 | Issue | OpenIPC/divinus | [divinus-issue-infinity6-bayer.md](divinus-issue-infinity6-bayer.md) | Abierto: [#45](https://github.com/OpenIPC/divinus/issues/45) |
 | 7 | Issue | OpenIPC/divinus | [divinus-issue-signals.md](divinus-issue-signals.md) | Abierto: [#46](https://github.com/OpenIPC/divinus/issues/46) |
 | 8 | Issue | OpenIPC/divinus | [divinus-issue-onvif-systemtime.md](divinus-issue-onvif-systemtime.md) | Abierto: [#47](https://github.com/OpenIPC/divinus/issues/47) |
-| 9 | Issue | OpenIPC/divinus | [divinus-issue-webui-crash.md](divinus-issue-webui-crash.md) | Pendiente: aislar el endpoint desde un arranque limpio |
-| 10 | Base de datos de hardware | OpenIPC | [../openipc-hardware-report.md](../openipc-hardware-report.md) | Pendiente: confirmar el canal oficial |
+| 9 | PR | OpenIPC/divinus | [divinus-pr-escape-json.md](divinus-pr-escape-json.md) | Abierta: [#48](https://github.com/OpenIPC/divinus/pull/48). Caída de la web aislada (`/api/onvif` y `/api/rtsp`), arreglada y probada |
+| 10 | Discusión | OpenIPC/firmware → Discussions → Hardware | [firmware-discussion-hardware.md](firmware-discussion-hardware.md) | Pendiente: el token de `gh` no tiene `write:discussion` |
+| 11 | Respuesta | OpenIPC/divinus#44 (bot de revisión) | — | Pendiente de aprobación |
 
 ## Pendientes
 
 - **4**: capturar con Wireshark/tcpdump una sonda WS-Discovery sin respuesta y comentarlo
   en #57, como pide el mantenedor al cerrarlo.
-- **9**: reproducir la caída de divinus con majestic desactivado desde la SD, un endpoint
-  de la web cada vez.
-- **10**: averiguar dónde recibe OpenIPC las fichas de dispositivos antes de enviarla.
+- **10**: `gh auth refresh -h github.com -s write:discussion`, o publicarla a mano.
+- Un perfil en `OpenIPC/builder` (canal para dispositivos) necesita antes configurar el
+  WiFi y los ajustes sin `fw_setenv`: etapa 3 del [ROADMAP](../ROADMAP.md).

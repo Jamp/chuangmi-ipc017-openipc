@@ -60,6 +60,14 @@ if [ -r "$sd/authorized_keys" ]; then
 	chmod 600 /root/.ssh/authorized_keys /etc/dropbear/authorized_keys
 fi
 
+# El botón "Firmware update" de la web de majestic ejecuta sysupgrade. Aquí no
+# reconoce las particiones de fábrica (KERNEL/ROOTFS del MXP) y la imagen oficial
+# no arranca sin /linuxrc ni el driver del MT7601U: se sustituyen por un aviso.
+for tool in sysupgrade firstboot; do
+	printf '#!/bin/sh\necho "%s está desactivado en esta cámara: actualizar con tools/flash-openipc.sh o con programador" >&2\nexit 1\n' "$tool" > "/usr/sbin/$tool"
+	chmod 755 "/usr/sbin/$tool"
+done
+
 # La placa no tiene conector Ethernet, pero el SoC sí tiene eth0: S40network lo
 # levantaba con un udhcpc eterno y majestic anunciaba ONVIF por él en vez de por wlan0.
 rm -f /etc/network/interfaces.d/eth0

@@ -70,9 +70,11 @@ Diagnóstico opcional: copiar `sd/watch.sh` a la SD vuelca memoria, estado de ma
   del propio U-Boot.
 - El overlay es tmpfs (no hay partición `rootfs_data`): lo que no restaure la SD se
   pierde en cada arranque.
-- **No usar `sysupgrade` ni `firstboot`**: buscan particiones `kernel`/`rootfs`/`rootfs_data`
-  y aquí se llaman `KERNEL`/`ROOTFS` (tabla MXP de fábrica). Según el código fallan sin
-  escribir, pero no está probado. Para actualizar: `tools/flash-openipc.sh` o programador.
+- **No usar `sysupgrade`, `firstboot` ni el botón "Firmware update" de la web de majestic**
+  (que ejecuta `sysupgrade`): buscan particiones `kernel`/`rootfs`/`rootfs_data` y aquí se
+  llaman `KERNEL`/`ROOTFS` (tabla MXP de fábrica), y la imagen oficial no arranca en esta
+  cámara sin `/linuxrc` ni el driver del MT7601U. `autostart.sh` los sustituye por un aviso.
+  Para actualizar: `tools/flash-openipc.sh` o programador.
 - `eth0` existe (EMAC sin conector) y majestic anunciaba ONVIF por él: `autostart.sh`
   borra su configuración para que `S40network` no lo levante.
 
