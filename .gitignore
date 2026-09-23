@@ -1,0 +1,27 @@
+# Imágenes de firmware y artefactos de build
+firmware/
+*.squashfs*
+*.sqfs
+uImage*
+*.bin
+
+# Backups de flash: FACTORY contiene MAC y credenciales Mi Home
+backup/
+
+# Clave SSH dedicada para la cámara
+keys/
+
+# Copia local de la config WiFi (credenciales)
+sd/wpa_supplicant.conf
+
+# Diagnósticos capturados de la cámara (incluyen SSID y MAC)
+logs/
+
+# Material del claim y cuentas que vive en la SD (hashes, clave de host)
+sd/accounts.shadow
+sd/eula-accepted
+sd/dropbear_ed25519_host_key
+sd/majestic-credentials.conf
+
+# Claves públicas de quien administra la cámara: propias de cada instalación
+sd/authorized_keys

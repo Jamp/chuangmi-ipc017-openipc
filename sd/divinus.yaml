@@ -1,0 +1,77 @@
+# Divinus en la ipc017, con los mismos ajustes y credenciales que majestic para que
+# la grabadora reconecte sin cambios. __RTSP_PASSWORD__ se sustituye al copiarlo a
+# la SD con la contraseña del usuario rtsp (keys/rtsp-password); aquí nunca va en claro.
+system:
+  sensor_config: /etc/sensors/gc2053.bin
+  web_port: 80
+  web_enable_auth: true
+  web_auth_user: rtsp
+  web_auth_pass: __RTSP_PASSWORD__
+  web_auth_skiplocal: false
+  web_enable_static: false
+  isp_thread_stack_size: 16384
+  venc_stream_thread_stack_size: 16384
+  web_server_thread_stack_size: 65536
+  time_format: "%Y-%m-%d %H:%M:%S"
+  # 0 mientras se prueba: un cuelgue se inspecciona en vez de reiniciar la cámara.
+  watchdog: 0
+
+isp:
+  mirror: false
+  flip: false
+  antiflicker: 0
+
+osd:
+  enable: false
+
+mdns:
+  enable: true
+
+onvif:
+  enable: true
+  enable_auth: true
+  auth_user: rtsp
+  auth_pass: __RTSP_PASSWORD__
+
+rtsp:
+  enable: true
+  enable_auth: true
+  auth_user: rtsp
+  auth_pass: __RTSP_PASSWORD__
+  port: 554
+
+record:
+  enable: false
+
+stream:
+  enable: false
+
+night_mode:
+  enable: false
+
+http_post:
+  enable: false
+
+audio:
+  enable: false
+
+# Igual que la configuración estable de majestic: 2048 kbps CBR, GOP de 2 s a 20 fps.
+mp4:
+  enable: true
+  codec: H264
+  mode: CBR
+  width: 1920
+  height: 1080
+  fps: 20
+  gop: 40
+  bitrate: 2048
+  profile: MP
+
+jpeg:
+  enable: true
+  width: 1920
+  height: 1080
+  qfactor: 50
+
+mjpeg:
+  enable: false

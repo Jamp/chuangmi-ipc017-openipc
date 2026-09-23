@@ -1,0 +1,6 @@
+#!/bin/sh
+# autostart.sh lo copia sobre /etc/init.d/S95majestic en S38, antes de que corra S95.
+# Tras el claim, majestic arranca el pipeline de vídeo y la cámara cae en segundos;
+# mientras se diagnostica, majestic se lanza a mano. El original sigue en /rom:
+#   /rom/etc/init.d/S95majestic start
+echo "majestic desactivado desde la SD (S95majestic.disabled)"
