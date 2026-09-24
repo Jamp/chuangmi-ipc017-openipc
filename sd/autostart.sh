@@ -28,6 +28,10 @@ done_flag=/run/autostart.done
 [ -e "$done_flag" ] && exit 0
 touch "$done_flag"
 
+# El U-Boot de OpenIPC arranca el kernel con panic=20 y el de fábrica no: sin esto, un
+# pánico dejaba la cámara congelada hasta que saltaba el watchdog de majestic (300 s).
+echo 20 > /proc/sys/kernel/panic
+
 mkdir -p "$sd/logs"
 boot_count=$(($(cat "$sd/logs/count" 2>/dev/null || echo 0) + 1))
 echo "$boot_count" > "$sd/logs/count"

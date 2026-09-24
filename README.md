@@ -72,10 +72,14 @@ Diagnóstico opcional: copiar `sd/watch.sh` a la SD vuelca memoria, estado de ma
   del propio U-Boot.
 - El overlay es tmpfs (no hay partición `rootfs_data`): lo que no restaure la SD se
   pierde en cada arranque. Por eso `persist-save.sh` guarda en la SD lo cambiado desde la web.
-- **Parar majestic cuelga el SoC entero** (sin red) hasta que el watchdog lo reinicia, unos
-  4 min: el `rcK` original se quedaba siempre en `S95majestic stop`. `shutdown.sh` reinicia
-  sin pararlo (~30 s) y los cambios con `cli -s` se aplican en caliente, así que no hace
-  falta reiniciar majestic. Evitar `S95majestic restart` y el reinicio de majestic de la web.
+- **Pánico del kernel al reconstruir el pipeline de vídeo con el JPEG activo** (por defecto):
+  cualquier ajuste que majestic aplica reconstruyéndolo (`changed [pipeline]` en el log; por
+  ejemplo `isp.*`, `jpeg.*`) tira la cámara en 2 s, 4 de 4 veces; sin JPEG, 0 de 2. Parar
+  majestic también la tira a veces (3 de 15). Con `panic=20` (`autostart.sh`) vuelve sola en
+  ~70 s con la configuración anterior (el cambio normalmente se pierde). `shutdown.sh` reinicia sin
+  parar majestic (~30 s). Los ajustes de noche, OSD y zona horaria no reconstruyen el pipeline.
+  Reportado en OpenIPC/majestic#327: falta saber si pasa en sus placas o es cosa de esta
+  (el U-Boot de fábrica deja 20 MB de memoria de vídeo en lugar de 32).
 - **Modo noche:** IR-cut en los GPIO 78 (quita el filtro) y 79 (lo pone), LED IR en el pad 52,
   día/noche por la ganancia del ISP (`sd/majestic.conf`). Detalle en el informe de hardware.
 - **No usar `sysupgrade`, `firstboot` ni el botón "Firmware update" de la web de majestic**
