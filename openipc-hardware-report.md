@@ -220,11 +220,12 @@ camera:
 | 16 | out | lo | unidentified | application |
 | 62 | out | hi | `amp-gpio` — audio amplifier | kernel driver (not sysfs) |
 | 66 | **in** | hi | **reset button** (only input) | application |
-| 76 | out | hi | LED / IR group | application |
+| 52 | — | — | **IR LEDs** (pad of PWM0, not a sysfs GPIO in stock) | application, via `/sys/class/pwm` |
+| 76 | out | hi | unidentified (LED group) | application |
 | 77 | out | lo | yellow status LED (set hi by `S00init`, later cleared) | both |
-| 78 | out | lo | LED / IR group | application |
-| 79 | out | lo | LED / IR group | application |
-| 80 | out | lo | LED / IR group | application |
+| 78 | out | lo | **IR-cut: pulse to remove the filter** (night) | application |
+| 79 | out | lo | **IR-cut: pulse to insert the filter** (day) | application |
+| 80 | out | lo | unidentified (LED group) | application |
 | 81 | out | hi | CPU 1 GHz select | `S00init` |
 
 GPIO 14 is critical: without asserting it the MT7601U never powers up and will not
@@ -236,11 +237,31 @@ audio amplifier enable and is separate from the GPIO 15 audio gate.
 Separately, PWM pads 44–47 (`pwmId 4..7`) are driven with a repeating 45→90→50 duty
 cycle, which produces the LED breathing effect.
 
-IR-cut sits on a 2-pin JST connector silkscreened `IRCUT` next to the lens holder.
-Its control lines are within the 76–80 block, driven from the application binary
-rather than from an init script; the exact pair has not yet been isolated. An IR-cut
-actuator needs two lines to drive the coil in both directions, so expect a pair
-rather than a single GPIO.
+IR-cut sits on a 2-pin JST connector silkscreened `IRCUT` next to the lens holder and
+is driven by GPIO 78/79 from the vendor `miio_algo` (the strings `78` and `79` sit in
+its IR-cut init). The IR LEDs are on pad 52: the stock device tree maps PWM0 there
+(`pad-ctrl = 52 53 - - 44 45 46 47 ...`) and `miio_algo` drives
+`/sys/class/pwm/pwmchip0/pwm0` with a 120 µs period. Measured on the running camera, in
+a dark room, from the ISP's own auto-exposure:
+
+| State | Analog gain | Exposure |
+|---|---|---|
+| Filter in (pulse on 79), IR LEDs on or off | 64× | 100 ms |
+| Filter out (pulse on 78), IR LEDs off | 16× | 90 ms; in colour, a magenta cast |
+| Filter out, IR LEDs on (PWM0 or GPIO 52 high) | 6–8× | 50 ms |
+
+A 30 ms pulse moves the filter in either direction. majestic drives it with:
+
+```
+nightMode.irCutPin1 78      # pulsed on the way to night
+nightMode.irCutPin2 79      # pulsed on the way back to day
+nightMode.backlightPin 52
+nightMode.lightMonitor true # no light sensor: day/night from the ISP gain
+nightMode.autoNightGain 8
+```
+
+The stock device tree also has an `sstar,infinity-ircut` node on GPIO 61 with an
+interrupt, but the vendor app decides day/night from exposure and gain.
 
 ---
 
@@ -305,7 +326,8 @@ recognise the Infinity6 SoC. This is itself worth reporting upstream.
 
 - ~~Does OpenIPC target plain **Infinity6 (SSC32x)**?~~ Yes: `ssc325_lite` runs on
   this board with the stock U-Boot. See section 12.
-- Which pair within GPIO 76–80 drives IR-cut, and which line enables the IR LEDs.
+- ~~Which pair within GPIO 76–80 drives IR-cut, and which line enables the IR LEDs.~~
+  IR-cut on GPIO 78/79, IR LEDs on pad 52 (PWM0). See section 7.
 - Audio codec part number (`mi_ai`/`mi_ao` loaded; GPIO 15 gates it, GPIO 62 is the
   amplifier).
 - Whether mainline `mt7601u` binds correctly and how it behaves under a sustained
@@ -371,5 +393,5 @@ Streaming:
   format forced to 28 (it computes 32: red/blue swapped). Then streams 1080p20 H.264 at
   ~13 % CPU, answers WS-Discovery and ONVIF Digest.
 
-Still unknown: the IR-cut GPIO pair (within 76–80), the IR LED line, the audio codec,
-and UART pads.
+Night mode works with majestic: IR-cut on GPIO 78/79, IR LEDs on pad 52 (section 7).
+Still unknown: the audio codec and the UART pads.

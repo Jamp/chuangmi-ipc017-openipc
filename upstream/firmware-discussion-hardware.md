@@ -27,7 +27,10 @@ runs longer than a day.
 - Don't use `sysupgrade`/`firstboot`: they look for `kernel`/`rootfs`/`rootfs_data` and
   the MXP names are `KERNEL`/`ROOTFS`.
 - `eth0` exists (SoC EMAC) but has no connector.
-- IR-cut is somewhere in GPIO 76–80, not isolated yet.
+- Night mode: IR-cut on GPIO 78 (night) / 79 (day), IR LEDs on pad 52 (PWM0 in the
+  stock device tree); no light sensor, so majestic decides from the ISP gain
+  (`nightMode.irCutPin1 78`, `irCutPin2 79`, `backlightPin 52`, `lightMonitor true`,
+  `autoNightGain 8`).
 
 **Streamers:**
 

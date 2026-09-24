@@ -47,7 +47,8 @@ Majestic sigue siendo el de producción hasta que divinus supere esto:
 
 ## Etapa 5 — Funciones
 
-- Modo noche: identificar el par de GPIO del IR-cut (76–80) y el LED IR.
+- ~~Modo noche: identificar el par de GPIO del IR-cut y el LED IR.~~ Hecho con majestic:
+  IR-cut en los GPIO 78/79 y LED IR en el pad 52 (`sd/majestic.conf`). Falta en divinus.
 - MQTT con descubrimiento automático en Home Assistant (movimiento, estado, capturas).
 - Detección de movimiento (divinus aún no la tiene) y eventos ONVIF.
 - Web de configuración propia.

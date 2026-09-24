@@ -25,3 +25,6 @@ sd/majestic-credentials.conf
 
 # Claves públicas de quien administra la cámara: propias de cada instalación
 sd/authorized_keys
+
+# Ajustes guardados desde la web de majestic (majestic.yaml lleva la contraseña ONVIF)
+sd/persist/

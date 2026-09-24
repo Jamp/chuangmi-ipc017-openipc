@@ -14,6 +14,9 @@
 #   dropbear_ed25519_host_key  clave de host SSH, para que la huella no cambie
 #   majestic.conf        ajustes "clave valor" aplicados con cli antes de majestic
 #   majestic-credentials.conf  igual, pero con contraseñas (onvif.password): fuera de git
+#   persist-save.sh      guarda en persist/ lo que se cambia desde la web de majestic
+#   persist/             majestic.yaml, TZ y timezone guardados: se restauran aquí
+#   shutdown.sh          sustituye a rcK y registra el apagado en logs/shutdown-N.log
 #   watch.sh             vigilante de memoria/dmesg/logread (opcional)
 #   S95majestic.disabled si existe, sustituye a S95majestic: majestic no arranca solo
 #   logs/boot-N.log      salida y diagnóstico de cada arranque
@@ -72,7 +75,20 @@ done
 # levantaba con un udhcpc eterno y majestic anunciaba ONVIF por él en vez de por wlan0.
 rm -f /etc/network/interfaces.d/eth0
 
-# Ajustes de majestic ("clave valor" por línea), aplicados antes de que arranque.
+# Lo cambiado desde la web de majestic (su config y la zona horaria) vive en /etc, que
+# es tmpfs: persist-save.sh lo guarda cada minuto y al apagar, y aquí se restaura.
+for name in majestic.yaml TZ timezone; do
+	[ -r "$sd/persist/$name" ] && cp "$sd/persist/$name" "/etc/$name"
+done
+if [ -r "$sd/persist-save.sh" ]; then
+	echo "* * * * * sh $sd/persist-save.sh" >> /etc/crontabs/root
+fi
+if [ -r "$sd/shutdown.sh" ]; then
+	printf '#!/bin/sh\nexec sh %s/shutdown.sh %s\n' "$sd" "$boot_count" > /etc/init.d/rcK
+fi
+
+# Ajustes de majestic ("clave valor" por línea), aplicados antes de que arranque y
+# después de restaurar persist/: así los de video0 mandan sobre lo cambiado en la web.
 # majestic-credentials.conf va aparte porque lleva contraseñas en claro (ONVIF Digest).
 for settings in "$sd/majestic.conf" "$sd/majestic-credentials.conf"; do
 	[ -r "$settings" ] || continue
