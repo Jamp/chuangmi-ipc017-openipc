@@ -47,7 +47,8 @@ también en `backup/`.
 | `eula-accepted` | Aceptación de la licencia de majestic hecha por el dueño |
 | `dropbear_ed25519_host_key` | Huella SSH fija entre reinicios |
 | `authorized_keys` | Claves SSH de root |
-| `majestic.conf` | Ajustes de vídeo y modo noche aplicados con `cli` antes de que arranque majestic |
+| `majestic/majestic` | majestic `master+2222b39` (tarball oficial del S3), copiado sobre el de la imagen en cada arranque |
+| `majestic.conf` | Modo noche aplicado con `cli` antes de que arranque majestic |
 | `persist-save.sh`, `persist/` | Lo cambiado desde la web (`majestic.yaml`, zona horaria), guardado cada minuto y al apagar y restaurado al arrancar |
 | `shutdown.sh` | Sustituye a `rcK`: guarda `persist/`, deja la SD en solo lectura y reinicia sin parar majestic |
 | `majestic-credentials.conf` | `onvif.username`/`onvif.password` del usuario `rtsp` (en claro: ONVIF Digest lo necesita) |
@@ -62,24 +63,29 @@ Diagnóstico opcional: copiar `sd/watch.sh` a la SD vuelca memoria, estado de ma
 
 ## Hallazgos
 
-- **Majestic se bloquea con la configuración de vídeo por defecto** (H.264 4096 kbps VBR,
-  GOP 1 s): cuando un I-frame no cabe en el anillo del encoder (`v-w[h4] full` en el
-  kernel), deja de retirar streams y su watchdog reinicia la cámara a los 300 s. Con
-  2048 kbps CBR y GOP de 2 s no ocurre (`sd/majestic.conf`). `tools/majestic-probe.sh`
-  mide si una configuración aguanta.
+- **Majestic se bloqueaba con la configuración de vídeo por defecto** (H.264 4096 kbps VBR,
+  GOP 1 s) hasta `7f2dc18`: cuando un I-frame no cabe en el anillo del encoder (`v-w[h4] full`
+  en el kernel), deja de retirar streams y su watchdog reinicia la cámara a los 300 s. Con
+  2048 kbps CBR y GOP de 2 s no ocurría. Arreglado en `master+2222b39` (OpenIPC/majestic#326):
+  35 min con la config por defecto, 33 I-frames partidos recompuestos y 0 descartes, así que
+  `sd/majestic.conf` ya no toca video0. `tools/majestic-probe.sh` mide si una configuración aguanta.
 - Sin `/etc/fw_env.config` nada escribe en el entorno del U-Boot. Si se añade,
   `load_sigmastar` hará `fw_setenv`, que reescribe un sector compartido con el final
   del propio U-Boot.
 - El overlay es tmpfs (no hay partición `rootfs_data`): lo que no restaure la SD se
   pierde en cada arranque. Por eso `persist-save.sh` guarda en la SD lo cambiado desde la web.
-- **Pánico del kernel al reconstruir el pipeline de vídeo con el JPEG activo** (por defecto):
-  cualquier ajuste que majestic aplica reconstruyéndolo (`changed [pipeline]` en el log; por
-  ejemplo `isp.*`, `jpeg.*`) tira la cámara en 2 s, 4 de 4 veces; sin JPEG, 0 de 2. Parar
-  majestic también la tira a veces (3 de 15). Con `panic=20` (`autostart.sh`) vuelve sola en
-  ~70 s con la configuración anterior (el cambio normalmente se pierde). `shutdown.sh` reinicia sin
-  parar majestic (~30 s). Los ajustes de noche, OSD y zona horaria no reconstruyen el pipeline.
-  Reportado en OpenIPC/majestic#327: falta saber si pasa en sus placas o es cosa de esta
-  (el U-Boot de fábrica deja 20 MB de memoria de vídeo en lugar de 32).
+- **Pánico del kernel al reconstruir el pipeline de vídeo con el JPEG activo** (por defecto),
+  hasta majestic `bdddcf0`: cualquier ajuste que majestic aplica reconstruyéndolo
+  (`changed [pipeline]` en el log; p. ej. `isp.*`, `jpeg.*`) tiraba la cámara en 2 s (4 de 4),
+  y parar majestic, a veces (3 de 15). OpenIPC lo reprodujo en su SSC325 con 32 MB: era el
+  orden en que majestic apagaba los encoders, no los 20 MB de memoria de vídeo de esta placa.
+  Arreglado en `master+2222b39` (OpenIPC/majestic#327), que la SD carga en cada arranque
+  (`sd/majestic/majestic`): 13 reconstrucciones y 4 paradas sin un fallo. Se mantienen
+  `panic=20` y el reinicio rápido de `shutdown.sh`.
+- **En `2222b39` cada reconstrucción deja reservada la plaza de la sesión RTSP que corta**: tras
+  unas cuantas, majestic rechaza a la grabadora (`Live backlog budget full`) hasta que se reinicia.
+  Reportado a OpenIPC. Mientras tanto, tras cambiar ajustes de vídeo desde la web, reiniciar
+  majestic o la cámara.
 - **Modo noche:** IR-cut en los GPIO 78 (quita el filtro) y 79 (lo pone), LED IR en el pad 52,
   día/noche por la ganancia del ISP (`sd/majestic.conf`). Detalle en el informe de hardware.
 - **No usar `sysupgrade`, `firstboot` ni el botón "Firmware update" de la web de majestic**

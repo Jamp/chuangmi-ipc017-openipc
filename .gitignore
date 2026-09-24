@@ -28,3 +28,6 @@ sd/authorized_keys
 
 # Ajustes guardados desde la web de majestic (majestic.yaml lleva la contraseña ONVIF)
 sd/persist/
+
+# Binario de majestic que la SD carga en cada arranque: su licencia no permite redistribuirlo
+sd/majestic/

@@ -12,6 +12,7 @@
 #   accounts.shadow      líneas de /etc/shadow: root (claim) y rtsp (grabadora)
 #   eula-accepted        aceptación de la EULA de majestic hecha por el dueño
 #   dropbear_ed25519_host_key  clave de host SSH, para que la huella no cambie
+#   majestic/majestic    majestic más nuevo que el de la imagen (opcional; ver abajo)
 #   majestic.conf        ajustes "clave valor" aplicados con cli antes de majestic
 #   majestic-credentials.conf  igual, pero con contraseñas (onvif.password): fuera de git
 #   persist-save.sh      guarda en persist/ lo que se cambia desde la web de majestic
@@ -74,6 +75,13 @@ for tool in sysupgrade firstboot; do
 	printf '#!/bin/sh\necho "%s está desactivado en esta cámara: actualizar con tools/flash-openipc.sh o con programador" >&2\nexit 1\n' "$tool" > "/usr/sbin/$tool"
 	chmod 755 "/usr/sbin/$tool"
 done
+
+# sysupgrade no sirve aquí, así que un majestic nuevo (el tarball oficial del S3) se
+# pone en la SD y se copia sobre el de la imagen antes de S95majestic; el overlay es
+# RAM (~1,4 MB). Para volver al de la imagen basta con borrarlo de la tarjeta.
+if [ -x "$sd/majestic/majestic" ]; then
+	cp "$sd/majestic/majestic" /usr/bin/majestic
+fi
 
 # La placa no tiene conector Ethernet, pero el SoC sí tiene eth0: S40network lo
 # levantaba con un udhcpc eterno y majestic anunciaba ONVIF por él en vez de por wlan0.

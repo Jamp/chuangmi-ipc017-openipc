@@ -7,7 +7,7 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 |---|---|---|---|---|
 | 1 | PR | OpenIPC/firmware | [firmware-pr-mt7601u.md](firmware-pr-mt7601u.md) | Cerrada tras la revisión: [#2473](https://github.com/OpenIPC/firmware/pull/2473). Cuesta ~430 KB de flash a todas las ssc325_lite y sola no da red; va como perfil en OpenIPC/builder |
 | 2 | PR | OpenIPC/firmware | [firmware-pr-linuxrc.md](firmware-pr-linuxrc.md) | **Fusionada** el 2026-09-24: [#2474](https://github.com/OpenIPC/firmware/pull/2474). Respondido con `/proc/mtd` y el overlay |
-| 3 | Issue | OpenIPC/majestic | [majestic-issue-venc-deadlock.md](majestic-issue-venc-deadlock.md) | Reproducido y **arreglado** en master: [#326](https://github.com/OpenIPC/majestic/issues/326). Probar la nightly posterior a las 17:25 UTC del 2026-09-24 con video0 por defecto |
+| 3 | Issue | OpenIPC/majestic | [majestic-issue-venc-deadlock.md](majestic-issue-venc-deadlock.md) | [#326](https://github.com/OpenIPC/majestic/issues/326): reproducido y **arreglado** en `master+2222b39`; confirmado aquí (35 min con video0 por defecto, 33 I-frames partidos recompuestos) |
 | 4 | Comentario | OpenIPC/majestic [#57](https://github.com/OpenIPC/majestic/issues/57) | [majestic-issue-wsdiscovery.md](majestic-issue-wsdiscovery.md) | Pendiente: el mantenedor pide una captura del intercambio Probe/ProbeMatches |
 | 5 | PR | OpenIPC/divinus | [divinus-pr-isp-symbol.md](divinus-pr-isp-symbol.md) | Abierta: [#44](https://github.com/OpenIPC/divinus/pull/44) |
 | 6 | Issue | OpenIPC/divinus | [divinus-issue-infinity6-bayer.md](divinus-issue-infinity6-bayer.md) | Abierto: [#45](https://github.com/OpenIPC/divinus/issues/45) |
@@ -17,7 +17,8 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 | 10 | Discusión | OpenIPC/firmware → Discussions → Hardware | [firmware-discussion-hardware.md](firmware-discussion-hardware.md) | Pendiente: el token de `gh` no tiene `write:discussion` |
 | 11 | Respuesta | OpenIPC/divinus#44 (bot Qodo) | [divinus-pr-isp-symbol-reply.md](divinus-pr-isp-symbol-reply.md) | Publicada el 2026-09-24 |
 | 12 | Respuesta | OpenIPC/firmware#2473 (bot Qodo) | — | Innecesaria: el revisor ya lo descartó con el mismo argumento |
-| 13 | Issue | OpenIPC/majestic | [majestic-issue-pipeline-panic.md](majestic-issue-pipeline-panic.md) | Abierto: [#327](https://github.com/OpenIPC/majestic/issues/327). Pánico del kernel al reconstruir el pipeline con JPEG; se pregunta si pasa en sus SSC325 |
+| 13 | Issue | OpenIPC/majestic | [majestic-issue-pipeline-panic.md](majestic-issue-pipeline-panic.md) | [#327](https://github.com/OpenIPC/majestic/issues/327): reproducido en su SSC325 (32 MB) y **arreglado** en `master+2222b39`; confirmado aquí (13 reconstrucciones, 4 paradas) |
+| 14 | Issue | OpenIPC/majestic | [majestic-issue-backlog-leak.md](majestic-issue-backlog-leak.md) | Abierto: [#328](https://github.com/OpenIPC/majestic/issues/328). Cada reconstrucción deja reservada la plaza de la sesión RTSP que corta |
 
 ## Pendientes
 
@@ -25,7 +26,6 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
   en #57, como pide el mantenedor al cerrarlo.
 - **10**: `gh auth refresh -h github.com -s write:discussion`, o publicarla a mano.
 - **1**: perfil de la ipc017 en OpenIPC/builder (`ssc325_lite` + MT7601U + su `wireless/usb` con GPIO 14).
-- **3**: probar la nightly con el arreglo y la config de vídeo por defecto; contar el resultado en #326.
 - Los revisores de OpenIPC piden no incluir firmas de asistentes de IA (`Co-Authored-By`, pie de Claude Code) en commits ni PR.
 - La CI de divinus#44 y #48 espera a que un mantenedor apruebe el workflow (primer aporte).
 - Un perfil en `OpenIPC/builder` (canal para dispositivos) necesita antes configurar el
