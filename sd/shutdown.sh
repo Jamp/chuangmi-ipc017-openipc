@@ -1,10 +1,11 @@
 #!/bin/sh
-# Sustituye a /etc/init.d/rcK (lo instala autostart.sh): guarda los ajustes y para los
-# servicios igual que rcK, pero dejando en la SD cuánto tarda cada script.
+# Sustituye a /etc/init.d/rcK (lo instala autostart.sh): guarda los ajustes de la web
+# en la SD y reinicia con reboot -f, sin parar los servicios.
 #
-# Un reinicio tarda ~5 min: el apagado se atasca hasta que salta el watchdog que arma
-# majestic (300 s). Este registro dice si el atasco está en un script de parada o
-# después, en el "umount -a -f" de inittab o en el propio reboot del kernel.
+# Parar majestic cuelga el SoC entero hasta que salta el watchdog (~4 min): el rcK
+# original se quedaba siempre en "S95majestic stop" (logs/shutdown-15.log). Saltarse
+# las paradas no pierde nada, porque / es tmpfs; lo único que hay que escribir es la SD.
+# Como init no dice si es reboot o poweroff, un poweroff también reinicia.
 #
 # Uso: sh shutdown.sh <arranque>    (el número del arranque que se está apagando)
 sd=$(cd "$(dirname "$0")" && pwd)
@@ -17,21 +18,7 @@ say() {
 
 say "rcK: inicio"
 sh "$sd/persist-save.sh"
-say "ajustes guardados en persist/"
-
-for script in $(ls -r /etc/init.d/S??*); do
-	[ -f "$script" ] || continue
-	say "$script stop"
-	"$script" stop >> "$log" 2>&1
-	say "$script stop -> $?"
-done
-
-{
-	echo "===== procesos que siguen vivos"
-	ps w
-	echo "===== montajes"
-	mount
-	echo "===== dmesg (final)"
-	dmesg | tail -30
-} >> "$log" 2>&1
-say "rcK: fin; sigue umount -a -f y el reboot del kernel"
+say "ajustes guardados en persist/; reboot -f sin parar majestic"
+# Solo lectura antes del reset: así la FAT queda marcada como desmontada limpiamente.
+mount -o remount,ro "$sd"
+reboot -f

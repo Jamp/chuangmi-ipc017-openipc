@@ -16,7 +16,7 @@
 #   majestic-credentials.conf  igual, pero con contraseñas (onvif.password): fuera de git
 #   persist-save.sh      guarda en persist/ lo que se cambia desde la web de majestic
 #   persist/             majestic.yaml, TZ y timezone guardados: se restauran aquí
-#   shutdown.sh          sustituye a rcK y registra el apagado en logs/shutdown-N.log
+#   shutdown.sh          sustituye a rcK: guarda persist/ y reinicia sin parar majestic
 #   watch.sh             vigilante de memoria/dmesg/logread (opcional)
 #   S95majestic.disabled si existe, sustituye a S95majestic: majestic no arranca solo
 #   logs/boot-N.log      salida y diagnóstico de cada arranque

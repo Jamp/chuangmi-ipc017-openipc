@@ -47,10 +47,12 @@ también en `backup/`.
 | `eula-accepted` | Aceptación de la licencia de majestic hecha por el dueño |
 | `dropbear_ed25519_host_key` | Huella SSH fija entre reinicios |
 | `authorized_keys` | Claves SSH de root |
-| `majestic.conf` | Ajustes de vídeo aplicados con `cli` antes de que arranque majestic |
+| `majestic.conf` | Ajustes de vídeo y modo noche aplicados con `cli` antes de que arranque majestic |
+| `persist-save.sh`, `persist/` | Lo cambiado desde la web (`majestic.yaml`, zona horaria), guardado cada minuto y al apagar y restaurado al arrancar |
+| `shutdown.sh` | Sustituye a `rcK`: guarda `persist/`, deja la SD en solo lectura y reinicia sin parar majestic |
 | `majestic-credentials.conf` | `onvif.username`/`onvif.password` del usuario `rtsp` (en claro: ONVIF Digest lo necesita) |
 | `divinus/` | Binario y `divinus.yaml` de la evaluación de divinus (no arranca solo) |
-| `logs/boot-N.log` | WiFi y diagnóstico a +90 s de cada arranque |
+| `logs/boot-N.log`, `logs/shutdown-N.log` | WiFi y diagnóstico a +90 s de cada arranque; su apagado |
 
 En `sd/` hay una copia de los scripts y ajustes. Los hashes, la clave de host y la
 configuración WiFi están solo en la tarjeta (y fuera de git).
@@ -69,7 +71,13 @@ Diagnóstico opcional: copiar `sd/watch.sh` a la SD vuelca memoria, estado de ma
   `load_sigmastar` hará `fw_setenv`, que reescribe un sector compartido con el final
   del propio U-Boot.
 - El overlay es tmpfs (no hay partición `rootfs_data`): lo que no restaure la SD se
-  pierde en cada arranque.
+  pierde en cada arranque. Por eso `persist-save.sh` guarda en la SD lo cambiado desde la web.
+- **Parar majestic cuelga el SoC entero** (sin red) hasta que el watchdog lo reinicia, unos
+  4 min: el `rcK` original se quedaba siempre en `S95majestic stop`. `shutdown.sh` reinicia
+  sin pararlo (~30 s) y los cambios con `cli -s` se aplican en caliente, así que no hace
+  falta reiniciar majestic. Evitar `S95majestic restart` y el reinicio de majestic de la web.
+- **Modo noche:** IR-cut en los GPIO 78 (quita el filtro) y 79 (lo pone), LED IR en el pad 52,
+  día/noche por la ganancia del ISP (`sd/majestic.conf`). Detalle en el informe de hardware.
 - **No usar `sysupgrade`, `firstboot` ni el botón "Firmware update" de la web de majestic**
   (que ejecuta `sysupgrade`): buscan particiones `kernel`/`rootfs`/`rootfs_data` y aquí se
   llaman `KERNEL`/`ROOTFS` (tabla MXP de fábrica), y la imagen oficial no arranca en esta
