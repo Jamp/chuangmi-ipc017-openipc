@@ -18,8 +18,8 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 | 11 | Respuesta | OpenIPC/divinus#44 (bot Qodo) | [divinus-pr-isp-symbol-reply.md](divinus-pr-isp-symbol-reply.md) | Publicada el 2026-09-24 |
 | 12 | Respuesta | OpenIPC/firmware#2473 (bot Qodo) | — | Innecesaria: el revisor ya lo descartó con el mismo argumento |
 | 13 | Issue | OpenIPC/majestic | [majestic-issue-pipeline-panic.md](majestic-issue-pipeline-panic.md) | **Cerrado** como arreglado en `master+2222b39`: [#327](https://github.com/OpenIPC/majestic/issues/327). Reproducido en su SSC325 (32 MB); confirmado aquí (13 reconstrucciones, 4 paradas) |
-| 14 | Issue | OpenIPC/majestic | [majestic-issue-backlog-leak.md](majestic-issue-backlog-leak.md) | [#328](https://github.com/OpenIPC/majestic/issues/328): reproducido y **arreglado**; en la nightly posterior a las 17:25 UTC del 2026-09-25. Falta confirmarlo aquí |
-| 15 | PR | OpenIPC/builder | [builder-pr-chuangmi-ipc017.md](builder-pr-chuangmi-ipc017.md) | Abierta: [#168](https://github.com/OpenIPC/builder/pull/168). Perfil completo: MT7601U, particiones de OpenIPC con `mtdparts=` y entorno propio, modo noche; probado en la cámara. `wireless/usb` reducido a nuestra rama, como pidió el bot |
+| 14 | Issue | OpenIPC/majestic | [majestic-issue-backlog-leak.md](majestic-issue-backlog-leak.md) | [#328](https://github.com/OpenIPC/majestic/issues/328): reproducido y **arreglado** en `master+69671d4`; confirmado aquí (6 reconstrucciones con la grabadora conectada, una sola plaza reservada) |
+| 15 | PR | OpenIPC/builder | [builder-pr-chuangmi-ipc017.md](builder-pr-chuangmi-ipc017.md) | Abierta: [#168](https://github.com/OpenIPC/builder/pull/168). Perfil completo: MT7601U, particiones de OpenIPC con `mtdparts=` y entorno propio, modo noche; probado en la cámara. `wireless/usb` reducido a nuestra rama, como pidió el bot. El revisor (`openipc-ai`) aprobó el diseño y subió `d9eb16f` (el `.dat` con la MAC va por bind mount desde `/tmp`, no al overlay); probado aquí |
 
 ## Pendientes
 

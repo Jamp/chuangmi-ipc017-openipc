@@ -106,10 +106,14 @@ Diagnóstico opcional: copiar `sd/watch.sh` a la SD vuelca memoria, estado de ma
   Arreglado en `master+2222b39` (OpenIPC/majestic#327), que la SD carga en cada arranque
   (`sd/majestic/majestic`): 13 reconstrucciones y 4 paradas sin un fallo. Se mantienen
   `panic=20` y el reinicio rápido de `shutdown.sh`.
-- **En `2222b39` cada reconstrucción deja reservada la plaza de la sesión RTSP que corta**: tras
-  unas cuantas, majestic rechaza a la grabadora (`Live backlog budget full`) hasta que se reinicia.
-  Reportado a OpenIPC. Mientras tanto, tras cambiar ajustes de vídeo desde la web, reiniciar
-  majestic o la cámara.
+- **En `2222b39` cada reconstrucción dejaba reservada la plaza de la sesión RTSP que corta**: tras
+  unas cuantas, majestic rechazaba a la grabadora (`Live backlog budget full`). Arreglado en
+  `master+69671d4` (OpenIPC/majestic#328), el que lleva la imagen desde el 2026-09-25.
+- **Sin detección de movimiento en majestic para esta placa**: el SDK de SigmaStar para infinity6
+  (SSC32x) no trae `libMD_LINUX.so`/`libmi_ive.so`, que sí tienen infinity6b0, 6c y 6e, y el
+  majestic Lite de infinity6 dice "this build has no motion detector". El firmware de Xiaomi
+  detectaba por software con su propio `miio_md`. La sección `motionDetect` de la config es un
+  resto de versiones antiguas y no hace nada.
 - **Modo noche:** IR-cut en los GPIO 78 (quita el filtro) y 79 (lo pone), LED IR en el pad 52,
   día/noche por la ganancia del ISP (`sd/majestic.conf`). Detalle en el informe de hardware.
 - **No usar `sysupgrade`, `firstboot` ni el botón "Firmware update" de la web de majestic**
