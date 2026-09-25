@@ -4,12 +4,21 @@ Contexto: [`openipc-portal-brief.md`](openipc-portal-brief.md) (brief original) 
 [`openipc-hardware-report.md`](openipc-hardware-report.md) (hardware, con el estado en
 OpenIPC). Plan: [`ROADMAP.md`](ROADMAP.md). Aportes a OpenIPC: [`upstream/`](upstream/README.md).
 
-## Estado: fase 1 terminada
+## Estado: perfil de builder en la cámara
 
-OpenIPC `ssc325_lite` (rama `ssc325-mt7601u`) arranca con el U-Boot original, el WiFi
-sube desde `autostart.sh` en la microSD y majestic emite H.264 1080p20 por RTSP.
-Sobrevive a reinicios sin intervención: el claim, las cuentas y la configuración se
-restauran desde la SD.
+La cámara lleva la imagen del perfil `ssc325_lite_chuangmi-ipc017`
+([OpenIPC/builder#168](https://github.com/OpenIPC/builder/pull/168)), compilada contra el
+firmware de OpenIPC con su kernel oficial, sobre el U-Boot original:
+
+- El kernel añade `mtdparts=` (fragmento con `CONFIG_CMDLINE_EXTEND`) con los offsets de la
+  tabla MXP de Xiaomi y los nombres de OpenIPC: overlay jffs2 persistente en `rootfs_data`
+  (la antigua DATA) y un entorno propio de 64 KB en `env`. El núcleo MTD prefiere
+  `cmdlinepart` a las particiones MXP que registra el driver. El entorno del U-Boot original
+  no se toca.
+- S40network levanta el WiFi con `wlandev`, `wlanssid` y `wlanpass` de ese entorno.
+- Configuración, claim y cuentas persisten en flash: la SD ya no es imprescindible.
+- `sysupgrade` sigue desactivado (`autostart.sh`) hasta que el perfil esté publicado en builder:
+  la imagen oficial no trae ni el MT7601U ni este `mtdparts`.
 
 - RTSP para la grabadora: `rtsp://rtsp:<contraseña>@<ip-de-la-cámara>:554/stream=0`
   (contraseña en `keys/rtsp-password`). El usuario `rtsp` no tiene shell y no puede
@@ -25,12 +34,23 @@ El procedimiento del brief no sirve tal cual: el U-Boot original arranca con
 
 1. `tools/add-linuxrc.sh` añade `/linuxrc -> init` al squashfs por append (conserva
    propietarios y setuid) y verifica que sea la única diferencia.
-2. `tools/flash-openipc.sh` escribe KERNEL (`mtd1`) y ROOTFS (`mtd2`) desde el firmware
+2. `tools/flash-openipc.sh <kernel|rootfs> <imagen> <md5>` escribe KERNEL (`mtd1`) y ROOTFS (`mtd2`) desde el firmware
    stock usando el busybox y el loader musl de OpenIPC copiados a tmpfs: `mtd2` es el
    rootfs en uso y no se puede depender de él mientras se sobrescribe. Relee y compara
    md5; si falla, deja una shell de rescate en el puerto 2323.
 
-Recuperación: `flashrom -p ch341a_spi -c W25Q128.V -l backup/layout.txt -i kernel -i rootfs
+### Migración al perfil de builder (2026-09-25)
+
+Desde el esquema de Xiaomi, con la cámara en marcha: `flash_eraseall /dev/mtd3` (DATA, con la
+app de Xiaomi, que `/init` montaría como overlay); `fw_setenv -c` con
+`/dev/mtd3 0x620000 0x10000 0x10000` para dejar `wlandev`, `wlanssid` y `wlanpass` en los
+últimos 64 KB (la futura `env`: sin Ethernet no habría forma de configurar el WiFi después);
+y `tools/flash-openipc.sh` para kernel y rootfs. Antes se guardó la flash entera:
+`backup/flash-actual-20260924/full-16M.bin`.
+
+Recuperación: `flashrom -p ch341a_spi -c W25Q128.V -w backup/flash-actual-20260924/full-16M.bin`
+devuelve la cámara al estado anterior a la migración. Para solo kernel y rootfs:
+`flashrom -p ch341a_spi -c W25Q128.V -l backup/layout.txt -i kernel -i rootfs
 -w <dump de la flash previa>`. Usar el dump que coincida con la flash anterior al
 flasheo (si se parcheó el rootfs stock para tener shell, el dump con ese parche). FACTORY y BOOT están
 también en `backup/`.
@@ -38,6 +58,10 @@ también en `backup/`.
 ## La microSD
 
 `autostart.sh` lo ejecuta OpenIPC en cada arranque (S38, antes de dropbear y majestic).
+Con la imagen de builder (detecta `rootfs_data` en `/proc/mtd`) solo restaura cuentas y
+claves, copia `persist/` una vez al overlay y, si a los 90 s wlan0 no tiene concesión DHCP,
+levanta el WiFi como antes. `persist-save.sh`, `shutdown.sh` y `majestic/majestic` solo se
+usan con el esquema de Xiaomi.
 
 | Fichero | Para qué |
 |---|---|

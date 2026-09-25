@@ -13,15 +13,16 @@ runs longer than a day.
 
 **What it needed:**
 
-- `BR2_PACKAGE_MT7601U_OPENIPC=y` — #2473
-- `/linuxrc -> init`, because the vendor U-Boot passes `init=/linuxrc` — #2474
+- `BR2_PACKAGE_MT7601U_OPENIPC=y`, now in the builder profile below (#2473 was closed for it)
+- `/linuxrc -> init`, because the vendor U-Boot passes `init=/linuxrc` — #2474 (merged)
 - GPIO 14 high before the MT7601U enumerates; `modprobe mt7601sta`,
   `wpa_supplicant -D nl80211`; factory MAC via `MacAddress=` in `MT7601USTA.dat`
 
 **Board notes for anyone trying it:**
 
 - Partitions come from the vendor MXP table (KERNEL at 0x50000, ROOTFS at 0x250000);
-  there is no `rootfs_data`, so the overlay is tmpfs.
+  there is no `rootfs_data`, so the overlay is tmpfs unless `mtdparts=` renames them
+  (the builder profile below does).
 - Keep `/etc/fw_env.config` absent: the environment shares its 64 KB erase sector with
   the end of U-Boot.
 - Don't use `sysupgrade`/`firstboot`: they look for `kernel`/`rootfs`/`rootfs_data` and
@@ -34,15 +35,15 @@ runs longer than a day.
 
 **Streamers:**
 
-- majestic: stalls with the default H.264 settings (OpenIPC/majestic#326); stable with
-  2048 kbps CBR, GOP 2 s.
-- divinus works with one fix (OpenIPC/divinus#44) and a forced Bayer format
+- majestic: stalled with the default H.264 settings until `master+2222b39`
+  (OpenIPC/majestic#326, #327); fine with the defaults since.
+- divinus works with one fix (OpenIPC/divinus#44, merged) and a forced Bayer format
   (OpenIPC/divinus#45); it answers WS-Discovery. See also divinus#46 and #47.
 
 Full hardware report, scripts and measurements:
 https://github.com/Jamp/chuangmi-ipc017-openipc (`openipc-hardware-report.md`).
 
-**Question for maintainers:** `builder` profiles configure WiFi and the upgrade URL
-through `fw_setenv`, which this board cannot use safely. What approach would you accept
-for a profile on a vendor-U-Boot board: settings in a flash partition (CONFIG, or the
-unused 6 MB DATA as `rootfs_data`), or something else?
+**Builder profile:** OpenIPC/builder#168 (`ssc325_lite_chuangmi-ipc017`). On the vendor
+U-Boot it appends an `mtdparts=` with OpenIPC's names at the vendor offsets, so the old
+DATA partition becomes a persistent jffs2 `rootfs_data` and its last 64 KB a separate
+`env`, leaving the vendor environment untouched.

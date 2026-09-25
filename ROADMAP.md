@@ -30,11 +30,13 @@ Majestic sigue siendo el de producción hasta que divinus supere esto:
 
 ## Etapa 3 — Independencia de la SD (fase 2 del brief)
 
-1. Configuración persistente en la flash: overlay en una partición propia (p. ej. la
-   DATA de 6 MB que OpenIPC no usa), sin tocar el entorno del U-Boot.
+1. ~~Configuración persistente en la flash~~ Hecho con el perfil de builder: `mtdparts=`
+   desde el kernel, overlay jffs2 en la antigua DATA y un entorno propio de 64 KB, sin
+   tocar el del U-Boot (OpenIPC/builder#168).
 2. Portal de configuración: si no hay WiFi configurado o no conecta, la cámara crea su
    propia red y una página para introducir la red de casa (como Thingino).
-3. Llevar al rootfs lo que hoy hace `autostart.sh` (GPIO 14, driver, MAC, cuentas).
+3. ~~Llevar al rootfs lo que hoy hace `autostart.sh`~~ Hecho en el perfil (GPIO 14, driver
+   y MAC en `wireless/usb`; cuentas y ajustes persisten en el overlay).
 
 ## Etapa 4 — Firmware propio y kit de instalación
 

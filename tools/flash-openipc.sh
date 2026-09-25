@@ -1,17 +1,20 @@
 #!/bin/sh
-# Escribe KERNEL o ROOTFS desde el firmware stock, sin depender del squashfs en uso.
+# Escribe el kernel (mtd1) o el rootfs (mtd2) sin depender del squashfs en uso, desde
+# el firmware stock o desde OpenIPC.
 #
-# Mientras flashcp sobrescribe mtd2, cualquier página del rootfs stock que haya que
+# Mientras flashcp sobrescribe mtd2, cualquier página del rootfs en uso que haya que
 # releer (busybox, libc, flashcp) saldría del squashfs a medio escribir. Por eso todo
 # se ejecuta con el busybox y el loader musl de OpenIPC copiados a /tmp/fl (tmpfs):
 #
-#   /tmp/fl/ld-musl-armhf.so.1 /tmp/fl/busybox sh /tmp/fl/flash-openipc.sh kernel
+#   /tmp/fl/ld-musl-armhf.so.1 /tmp/fl/busybox sh /tmp/fl/flash-openipc.sh \
+#       kernel /tmp/fl/uImage <md5>
 #   /tmp/fl/ld-musl-armhf.so.1 /tmp/fl/busybox setsid \
-#       /tmp/fl/ld-musl-armhf.so.1 /tmp/fl/busybox sh /tmp/fl/flash-openipc.sh rootfs \
-#       > /tmp/fl/rootfs.log 2>&1 < /dev/null &
+#       /tmp/fl/ld-musl-armhf.so.1 /tmp/fl/busybox sh /tmp/fl/flash-openipc.sh \
+#       rootfs /tmp/fl/rootfs.squashfs <md5> > /tmp/fl/rootfs.log 2>&1 < /dev/null &
 #
 # rootfs, si todo verifica, reinicia con el reboot -f de ese mismo busybox (el kernel
 # stock no tiene MAGIC_SYSRQ). Si falla, deja una shell de rescate en el puerto 2323.
+# Los md5 de la fase 1 están en el historial de git de este fichero.
 set -u
 
 dir=/tmp/fl
@@ -23,22 +26,17 @@ bb() {
 }
 
 case "${1:-}" in
-	kernel)
-		image=$dir/uImage.ssc325
-		mtd=/dev/mtd1
-		expected_md5=b9485c056088e8a0799009f7e25b741e
-		;;
-	rootfs)
-		image=$dir/rootfs.squashfs.ssc325-linuxrc
-		mtd=/dev/mtd2
-		expected_md5=a3bf0a9cc8acea8ba7f6178b376c0eac
-		;;
+	kernel) mtd=/dev/mtd1 ;;
+	rootfs) mtd=/dev/mtd2 ;;
 	*)
-		echo "uso: $0 kernel|rootfs" >&2
+		echo "uso: $0 kernel|rootfs <imagen> <md5>" >&2
 		exit 2
 		;;
 esac
+[ $# -eq 3 ] || { echo "uso: $0 kernel|rootfs <imagen> <md5>" >&2; exit 2; }
 target=$1
+image=$2
+expected_md5=$3
 
 md5_of_stdin() {
 	sum=$(bb md5sum)

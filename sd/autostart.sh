@@ -38,6 +38,13 @@ boot_count=$(($(cat "$sd/logs/count" 2>/dev/null || echo 0) + 1))
 echo "$boot_count" > "$sd/logs/count"
 log="$sd/logs/boot-$boot_count.log"
 
+# Con la imagen del perfil de builder (ssc325_lite_chuangmi-ipc017) el kernel crea
+# rootfs_data y env: el overlay es persistente, S40network levanta el WiFi con el
+# entorno propio y sysupgrade funciona. Entonces esta SD solo restaura cuentas y
+# claves, migra persist/ una vez y hace de red de seguridad del WiFi.
+builder=0
+grep -q '"rootfs_data"' /proc/mtd && builder=1
+
 if [ -r "$sd/S95majestic.disabled" ]; then
 	cp "$sd/S95majestic.disabled" /etc/init.d/S95majestic
 	chmod 755 /etc/init.d/S95majestic
@@ -71,7 +78,13 @@ fi
 # El botón "Firmware update" de la web de majestic ejecuta sysupgrade. Aquí no
 # reconoce las particiones de fábrica (KERNEL/ROOTFS del MXP) y la imagen oficial
 # no arranca sin /linuxrc ni el driver del MT7601U: se sustituyen por un aviso.
-for tool in sysupgrade firstboot; do
+# Con la imagen de builder las particiones ya se llaman como espera sysupgrade, pero
+# la imagen oficial sigue sin el MT7601U ni el mtdparts de esta placa, y el perfil
+# aún no está publicado en builder: sysupgrade sigue desactivado. firstboot solo
+# borra rootfs_data.
+tools="sysupgrade firstboot"
+[ "$builder" = 1 ] && tools=sysupgrade
+for tool in $tools; do
 	printf '#!/bin/sh\necho "%s está desactivado en esta cámara: actualizar con tools/flash-openipc.sh o con programador" >&2\nexit 1\n' "$tool" > "/usr/sbin/$tool"
 	chmod 755 "/usr/sbin/$tool"
 done
@@ -79,7 +92,7 @@ done
 # sysupgrade no sirve aquí, así que un majestic nuevo (el tarball oficial del S3) se
 # pone en la SD y se copia sobre el de la imagen antes de S95majestic; el overlay es
 # RAM (~1,4 MB). Para volver al de la imagen basta con borrarlo de la tarjeta.
-if [ -x "$sd/majestic/majestic" ]; then
+if [ "$builder" = 0 ] && [ -x "$sd/majestic/majestic" ]; then
 	cp "$sd/majestic/majestic" /usr/bin/majestic
 fi
 
@@ -89,14 +102,24 @@ rm -f /etc/network/interfaces.d/eth0
 
 # Lo cambiado desde la web de majestic (su config y la zona horaria) vive en /etc, que
 # es tmpfs: persist-save.sh lo guarda cada minuto y al apagar, y aquí se restaura.
-for name in majestic.yaml TZ timezone; do
-	[ -r "$sd/persist/$name" ] && cp "$sd/persist/$name" "/etc/$name"
-done
-if [ -r "$sd/persist-save.sh" ]; then
-	echo "* * * * * sh $sd/persist-save.sh" >> /etc/crontabs/root
-fi
-if [ -r "$sd/shutdown.sh" ]; then
-	printf '#!/bin/sh\nexec sh %s/shutdown.sh %s\n' "$sd" "$boot_count" > /etc/init.d/rcK
+# Con la imagen de builder /etc ya persiste: persist/ se copia una sola vez.
+if [ "$builder" = 1 ]; then
+	if [ ! -e /etc/persist.migrated ]; then
+		for name in majestic.yaml TZ timezone; do
+			[ -r "$sd/persist/$name" ] && cp "$sd/persist/$name" "/etc/$name"
+		done
+		touch /etc/persist.migrated
+	fi
+else
+	for name in majestic.yaml TZ timezone; do
+		[ -r "$sd/persist/$name" ] && cp "$sd/persist/$name" "/etc/$name"
+	done
+	if [ -r "$sd/persist-save.sh" ]; then
+		echo "* * * * * sh $sd/persist-save.sh" >> /etc/crontabs/root
+	fi
+	if [ -r "$sd/shutdown.sh" ]; then
+		printf '#!/bin/sh\nexec sh %s/shutdown.sh %s\n' "$sd" "$boot_count" > /etc/init.d/rcK
+	fi
 fi
 
 # Ajustes de majestic ("clave valor" por línea), aplicados antes de que arranque y
@@ -166,6 +189,11 @@ has_ipv4() {
 	ip -4 addr show dev wlan0 | grep -q 'inet '
 }
 
+# La IP de reserva de udhcpc (192.168.1.10) no trae ruta: solo la concesión DHCP la pone.
+has_default_route() {
+	ip route | grep -q '^default .*dev wlan0'
+}
+
 bring_up_wifi() {
 	say "autostart desde $sd, arranque $boot_count"
 
@@ -220,11 +248,29 @@ bring_up_wifi() {
 	diagnostics
 }
 
+# Con la imagen de builder el WiFi lo levanta S40network. Si a los 90 s wlan0 sigue
+# sin concesión DHCP, se levanta como antes, para no quedarse sin acceso a la cámara.
+wifi_rescue() {
+	say "imagen de builder, arranque $boot_count: esperando a S40network"
+	if wait_for 90 has_default_route; then
+		say "WiFi arriba por S40network: $(ip -4 addr show dev wlan0 | grep 'inet ')"
+		diagnostics
+		return
+	fi
+	say "S40network no levantó wlan0 en 90 s: se levanta desde la SD"
+	killall -q wpa_supplicant udhcpc
+	bring_up_wifi
+}
+
 # Subshell con exec, no "bring_up_wifi > log &": para redirigir una función, ash
 # guarda una copia del stdout original (el pipe a logger) mientras la función dura,
 # y automount.sh (y con él rcS) quedaba esperando en S38 hasta el final.
 (
 	exec > "$log" 2>&1 < /dev/null
-	bring_up_wifi
+	if [ "$builder" = 1 ]; then
+		wifi_rescue
+	else
+		bring_up_wifi
+	fi
 ) &
 echo "WiFi en segundo plano, log en $log"

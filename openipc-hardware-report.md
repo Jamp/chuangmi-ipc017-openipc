@@ -366,9 +366,13 @@ What had to be known:
 - **Boot**: the stock U-Boot passes `init=/linuxrc` and the kernel uses the bootloader
   command line, so the rootfs needs `/linuxrc -> init` or the kernel panics before
   userspace.
-- **Partitions**: the kernel reads the vendor MXP table at `0x20000` (same six
-  partitions as stock; `mtdblock2` = rootfs). There is no `rootfs_data`, so the
-  overlay is tmpfs.
+- **Partitions**: without `mtdparts=` the kernel reads the vendor MXP table at `0x20000`
+  (same six partitions as stock; `mtdblock2` = rootfs), so there is no `rootfs_data` and
+  the overlay is tmpfs. The builder profile (OpenIPC/builder#168) appends
+  `mtdparts=NOR_FLASH:320k(boot)ro,2048k(kernel),7552k(rootfs),6272k(rootfs_data),64k(env),64k(config)ro,64k(factory)ro`
+  through `CONFIG_CMDLINE_EXTEND`: the MTD core prefers cmdlinepart over the MXP
+  partitions `flash_isp` registers, so the old DATA becomes a jffs2 overlay and its last
+  64 KB an `env` of its own. Verified on this unit.
 - **U-Boot environment**: leave `/etc/fw_env.config` absent. Writing the environment
   rewrites the 64 KB sector `0x40000–0x4FFFF`, which also holds the end of U-Boot.
 - **WiFi**: drive GPIO 14 high, `modprobe mt7601sta`, `wpa_supplicant -D nl80211`.
