@@ -21,6 +21,7 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 | 14 | Issue | OpenIPC/majestic | [majestic-issue-backlog-leak.md](majestic-issue-backlog-leak.md) | **Cerrado** como arreglado en `master+69671d4`: [#328](https://github.com/OpenIPC/majestic/issues/328). Confirmado aquí (6 reconstrucciones con la grabadora conectada) |
 | 15 | PR | OpenIPC/builder | [builder-pr-chuangmi-ipc017.md](builder-pr-chuangmi-ipc017.md) | **Fusionada** el 2026-09-26 por `openipc-ai` (squash `7f7a957`, sin cambios sobre `d9eb16f`): [#168](https://github.com/OpenIPC/builder/pull/168) |
 | 16 | Issue | OpenIPC/majestic | [majestic-issue-motion-infinity6.md](majestic-issue-motion-infinity6.md) | Abierto: [#330](https://github.com/OpenIPC/majestic/issues/330). Detector de movimiento por CPU para infinity6, o forma de inyectar eventos desde fuera |
+| 17 | Issue | OpenIPC/firmware | [firmware-issue-sysupgrade-builder-fallback.md](firmware-issue-sysupgrade-builder-fallback.md) | Abierto: [#2484](https://github.com/OpenIPC/firmware/issues/2484). Sin `upgrade`, `-k`/`-r` en un dispositivo de builder bajan la imagen genérica; no se compara el `BUILD_PLATFORM` de la candidata |
 
 ## Pendientes
 
