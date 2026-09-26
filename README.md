@@ -17,8 +17,8 @@ firmware de OpenIPC con su kernel oficial, sobre el U-Boot original:
   no se toca.
 - S40network levanta el WiFi con `wlandev`, `wlanssid` y `wlanpass` de ese entorno.
 - Configuración, claim y cuentas persisten en flash: la SD ya no es imprescindible.
-- `sysupgrade` sigue desactivado (`autostart.sh`) hasta que el perfil esté publicado en builder:
-  la imagen oficial no trae ni el MT7601U ni este `mtdparts`.
+- `sysupgrade` pasa por `sd/sysupgrade-guard.sh`: solo baja la imagen del perfil de builder. La
+  genérica de `ssc325_lite` no trae ni el MT7601U ni este `mtdparts`, y `sysupgrade` no lo comprueba.
 
 - RTSP para la grabadora: `rtsp://rtsp:<contraseña>@<ip-de-la-cámara>:554/stream=0`
   (contraseña en `keys/rtsp-password`). El usuario `rtsp` no tiene shell y no puede
@@ -75,6 +75,7 @@ usan con el esquema de Xiaomi.
 | `majestic.conf` | Modo noche aplicado con `cli` antes de que arranque majestic |
 | `persist-save.sh`, `persist/` | Lo cambiado desde la web (`majestic.yaml`, zona horaria), guardado cada minuto y al apagar y restaurado al arrancar |
 | `shutdown.sh` | Sustituye a `rcK`: guarda `persist/`, deja la SD en solo lectura y reinicia sin parar majestic |
+| `sysupgrade-guard.sh` | Con la imagen de builder va en `/usr/sbin/sysupgrade`: solo deja bajar la imagen del perfil (`-k`/`-r` con `upgrade` apuntando a ella), permite el reset de fábrica y rechaza `--channel`, `--build`, `--url`, `--archive` y los forzados, que podrían grabar la genérica sin MT7601U |
 | `majestic-credentials.conf` | `onvif.username`/`onvif.password` del usuario `rtsp` (en claro: ONVIF Digest lo necesita) |
 | `divinus/` | Binario y `divinus.yaml` de la evaluación de divinus (no arranca solo) |
 | `logs/boot-N.log`, `logs/shutdown-N.log` | WiFi y diagnóstico a +90 s de cada arranque; su apagado |

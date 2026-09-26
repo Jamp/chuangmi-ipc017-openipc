@@ -78,16 +78,20 @@ fi
 # El botón "Firmware update" de la web de majestic ejecuta sysupgrade. Aquí no
 # reconoce las particiones de fábrica (KERNEL/ROOTFS del MXP) y la imagen oficial
 # no arranca sin /linuxrc ni el driver del MT7601U: se sustituyen por un aviso.
-# Con la imagen de builder las particiones ya se llaman como espera sysupgrade, pero
-# la imagen oficial sigue sin el MT7601U ni el mtdparts de esta placa, y el perfil
-# aún no está publicado en builder: sysupgrade sigue desactivado. firstboot solo
-# borra rootfs_data.
-tools="sysupgrade firstboot"
-[ "$builder" = 1 ] && tools=sysupgrade
-for tool in $tools; do
-	printf '#!/bin/sh\necho "%s está desactivado en esta cámara: actualizar con tools/flash-openipc.sh o con programador" >&2\nexit 1\n' "$tool" > "/usr/sbin/$tool"
-	chmod 755 "/usr/sbin/$tool"
-done
+# Con la imagen de builder, sysupgrade pasa por sysupgrade-guard.sh, que solo deja
+# bajar la imagen del perfil, y firstboot (reset de fábrica) funciona. /usr/sbin está
+# en el overlay jffs2: se copia solo si cambió, para no escribir la flash en cada arranque.
+if [ "$builder" = 1 ]; then
+	if [ -r "$sd/sysupgrade-guard.sh" ] && ! cmp -s "$sd/sysupgrade-guard.sh" /usr/sbin/sysupgrade; then
+		cp "$sd/sysupgrade-guard.sh" /usr/sbin/sysupgrade
+		chmod 755 /usr/sbin/sysupgrade
+	fi
+else
+	for tool in sysupgrade firstboot; do
+		printf '#!/bin/sh\necho "%s está desactivado en esta cámara: actualizar con tools/flash-openipc.sh o con programador" >&2\nexit 1\n' "$tool" > "/usr/sbin/$tool"
+		chmod 755 "/usr/sbin/$tool"
+	done
+fi
 
 # sysupgrade no sirve aquí, así que un majestic nuevo (el tarball oficial del S3) se
 # pone en la SD y se copia sobre el de la imagen antes de S95majestic; el overlay es
