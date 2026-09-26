@@ -11,15 +11,15 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 | 4 | Comentario | OpenIPC/majestic [#57](https://github.com/OpenIPC/majestic/issues/57) | [majestic-issue-wsdiscovery.md](majestic-issue-wsdiscovery.md) | Pendiente: el mantenedor pide una captura del intercambio Probe/ProbeMatches |
 | 5 | PR | OpenIPC/divinus | [divinus-pr-isp-symbol.md](divinus-pr-isp-symbol.md) | **Fusionada** el 2026-09-24 por el mantenedor: [#44](https://github.com/OpenIPC/divinus/pull/44) |
 | 6 | Issue | OpenIPC/divinus | [divinus-issue-infinity6-bayer.md](divinus-issue-infinity6-bayer.md) | Abierto: [#45](https://github.com/OpenIPC/divinus/issues/45) |
-| 7 | Issue | OpenIPC/divinus | [divinus-issue-signals.md](divinus-issue-signals.md) | Abierto: [#46](https://github.com/OpenIPC/divinus/issues/46) |
-| 8 | Issue | OpenIPC/divinus | [divinus-issue-onvif-systemtime.md](divinus-issue-onvif-systemtime.md) | Abierto: [#47](https://github.com/OpenIPC/divinus/issues/47) |
+| 7 | Issue | OpenIPC/divinus | [divinus-issue-signals.md](divinus-issue-signals.md) | **Cerrado** con `861860f` (SIGINT/QUIT/TERM salen, solo SIGHUP reinicia): [#46](https://github.com/OpenIPC/divinus/issues/46) |
+| 8 | Issue | OpenIPC/divinus | [divinus-issue-onvif-systemtime.md](divinus-issue-onvif-systemtime.md) | **Cerrado** con `f598322` (`GetCapabilities` y `GetSystemDateAndTime` sin autenticación): [#47](https://github.com/OpenIPC/divinus/issues/47) |
 | 9 | PR | OpenIPC/divinus | [divinus-pr-escape-json.md](divinus-pr-escape-json.md) | **Fusionada** el 2026-09-24 por el mantenedor: [#48](https://github.com/OpenIPC/divinus/pull/48). Caída de la web (`/api/onvif` y `/api/rtsp`) |
 | 10 | Discusión | OpenIPC/firmware → Discussions → Hardware | [firmware-discussion-hardware.md](firmware-discussion-hardware.md) | Pendiente: el token de `gh` no tiene `write:discussion` |
 | 11 | Respuesta | OpenIPC/divinus#44 (bot Qodo) | [divinus-pr-isp-symbol-reply.md](divinus-pr-isp-symbol-reply.md) | Publicada el 2026-09-24 |
 | 12 | Respuesta | OpenIPC/firmware#2473 (bot Qodo) | — | Innecesaria: el revisor ya lo descartó con el mismo argumento |
 | 13 | Issue | OpenIPC/majestic | [majestic-issue-pipeline-panic.md](majestic-issue-pipeline-panic.md) | **Cerrado** como arreglado en `master+2222b39`: [#327](https://github.com/OpenIPC/majestic/issues/327). Reproducido en su SSC325 (32 MB); confirmado aquí (13 reconstrucciones, 4 paradas) |
-| 14 | Issue | OpenIPC/majestic | [majestic-issue-backlog-leak.md](majestic-issue-backlog-leak.md) | [#328](https://github.com/OpenIPC/majestic/issues/328): reproducido y **arreglado** en `master+69671d4`; confirmado aquí (6 reconstrucciones con la grabadora conectada, una sola plaza reservada) |
-| 15 | PR | OpenIPC/builder | [builder-pr-chuangmi-ipc017.md](builder-pr-chuangmi-ipc017.md) | Abierta: [#168](https://github.com/OpenIPC/builder/pull/168). Perfil completo: MT7601U, particiones de OpenIPC con `mtdparts=` y entorno propio, modo noche; probado en la cámara. `wireless/usb` reducido a nuestra rama, como pidió el bot. El revisor (`openipc-ai`) aprobó el diseño y subió `d9eb16f` (el `.dat` con la MAC va por bind mount desde `/tmp`, no al overlay); probado aquí |
+| 14 | Issue | OpenIPC/majestic | [majestic-issue-backlog-leak.md](majestic-issue-backlog-leak.md) | **Cerrado** como arreglado en `master+69671d4`: [#328](https://github.com/OpenIPC/majestic/issues/328). Confirmado aquí (6 reconstrucciones con la grabadora conectada) |
+| 15 | PR | OpenIPC/builder | [builder-pr-chuangmi-ipc017.md](builder-pr-chuangmi-ipc017.md) | **Fusionada** el 2026-09-26 por `openipc-ai` (squash `7f7a957`, sin cambios sobre `d9eb16f`): [#168](https://github.com/OpenIPC/builder/pull/168) |
 
 ## Pendientes
 
