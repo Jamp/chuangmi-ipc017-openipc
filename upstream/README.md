@@ -14,7 +14,7 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 | 7 | Issue | OpenIPC/divinus | [divinus-issue-signals.md](divinus-issue-signals.md) | **Cerrado** con `861860f` (SIGINT/QUIT/TERM salen, solo SIGHUP reinicia): [#46](https://github.com/OpenIPC/divinus/issues/46) |
 | 8 | Issue | OpenIPC/divinus | [divinus-issue-onvif-systemtime.md](divinus-issue-onvif-systemtime.md) | **Cerrado** con `f598322` (`GetCapabilities` y `GetSystemDateAndTime` sin autenticación): [#47](https://github.com/OpenIPC/divinus/issues/47) |
 | 9 | PR | OpenIPC/divinus | [divinus-pr-escape-json.md](divinus-pr-escape-json.md) | **Fusionada** el 2026-09-24 por el mantenedor: [#48](https://github.com/OpenIPC/divinus/pull/48). Caída de la web (`/api/onvif` y `/api/rtsp`) |
-| 10 | Discusión | OpenIPC/firmware → Discussions → Hardware | [firmware-discussion-hardware.md](firmware-discussion-hardware.md) | Pendiente: el token de `gh` no tiene `write:discussion` |
+| 10 | Discusión | OpenIPC/firmware → Discussions → Hardware | [firmware-discussion-hardware.md](firmware-discussion-hardware.md) | No publicable: aun con `write:discussion`, GitHub responde FORBIDDEN; el repositorio solo tiene una discusión, de un miembro (las categorías parecen restringidas a mantenedores). Su contenido está en builder#168 y en este repo |
 | 11 | Respuesta | OpenIPC/divinus#44 (bot Qodo) | [divinus-pr-isp-symbol-reply.md](divinus-pr-isp-symbol-reply.md) | Publicada el 2026-09-24 |
 | 12 | Respuesta | OpenIPC/firmware#2473 (bot Qodo) | — | Innecesaria: el revisor ya lo descartó con el mismo argumento |
 | 13 | Issue | OpenIPC/majestic | [majestic-issue-pipeline-panic.md](majestic-issue-pipeline-panic.md) | **Cerrado** como arreglado en `master+2222b39`: [#327](https://github.com/OpenIPC/majestic/issues/327). Reproducido en su SSC325 (32 MB); confirmado aquí (13 reconstrucciones, 4 paradas) |
@@ -25,6 +25,5 @@ la ipc017 (SSC323 + GC2053 + MT7601U).
 
 ## Pendientes
 
-- **10**: `gh auth refresh -h github.com -s write:discussion`, o publicarla a mano.
 - Los revisores de OpenIPC piden no incluir firmas de asistentes de IA (`Co-Authored-By`, pie de Claude Code) en commits ni PR.
 - divinus#44 y #48 fusionadas; sus builds de PR constan como fallidos porque nunca se aprobaron (0 jobs), y los de master tras la fusión pasaron.

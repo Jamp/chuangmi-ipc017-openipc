@@ -31,3 +31,7 @@ sd/persist/
 
 # Binario de majestic que la SD carga en cada arranque: su licencia no permite redistribuirlo
 sd/majestic/
+
+# Cachés de Python y de pytest (tests de tools/)
+__pycache__/
+.pytest_cache/
